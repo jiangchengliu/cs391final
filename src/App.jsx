@@ -20,15 +20,50 @@ const StyledSlider = styled(Slider)`
     }
 `
 
-
-
-
-
 export default function App(){
     const canvasRef = useRef(null); // Using useRef to reference the canvas
     const [color, setColor] = useState("#1d88d9");
     const [erase, setErase] = useState(false);
     const [strokeWidth, setStrokeWidth] = useState(15);
+
+    const [drawings, setDrawings] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(-1);
+
+    const handleNextDrawing = () => {
+        if (currentIndex < drawings.length - 1) {
+            const nextIndex = currentIndex + 1;
+            loadDrawing(nextIndex);
+            console.log("next clicked");
+        } else {
+            canvasRef.current.clear();
+            console.log("next clicked (new drawing)");
+        }
+    };
+
+    const handlePrevDrawing = () => {
+        const newIndex = currentIndex - 1;
+        loadDrawing(newIndex);
+    }
+
+    const loadDrawing = (index) => {
+        if (index >= 0 && index < drawings.length) {
+            canvasRef.current.clear();
+            const drawing = drawings[index];
+            canvasRef.current.loadSaveData(drawing, true);
+            setCurrentIndex(index);
+        }
+    }
+
+    const handleSaveDrawing = () => {
+        if (canvasRef.current) {
+            setDrawings(prevDrawings => {
+                const updatedDrawings = [...prevDrawings.slice(0, currentIndex + 1), canvasRef.current.getSaveData()];
+                setCurrentIndex(updatedDrawings.length - 1);
+                return updatedDrawings;
+            });
+        }
+        console.log("Saved");
+    }
 
     const handlePenClick = () => {
         setErase(false);
@@ -43,17 +78,17 @@ export default function App(){
         canvasRef.current.clear();
     };
 
+    const printHistory = () => {
+        console.log(drawings);
+    }
+
     const lighten = `color-mix(in srgb, ${color}, white 50%)`;
-
-
-
 
 
     return(
         <Page>
             <Toolbox color={color}>
                 <HexColorPicker color={color} onChange={setColor}/>
-
                 <Inputs>
                     <Buttons>
                         {erase ? <Button onClick={handlePenClick} color={color}>Pen</Button>
@@ -64,6 +99,10 @@ export default function App(){
                         }
                         <Button onClick={handleUndoClick} color={color}>Undo</Button>
                         <Button onClick={handleClearClick} color={color}>Clear</Button>
+                        <Button onClick={handleNextDrawing}>Next</Button>
+                        <Button onClick={handlePrevDrawing}>Prev</Button>
+                        <Button onClick={handleSaveDrawing}>Save</Button>
+                        <Button onClick={printHistory}>Print</Button>
                     </Buttons>
 
                     <p>Stroke width</p>
