@@ -37,9 +37,12 @@ export default function App(){
             console.log(currentIndex);
         } else {
             canvasRef.current.clear();
-            setCurrentIndex(nextIndex);
+            if (drawings[currentIndex]) {
+                setCurrentIndex(nextIndex);
+            }
             console.log("next clicked (new drawing)");
             console.log(currentIndex);
+
         }
     };
 
@@ -62,9 +65,9 @@ export default function App(){
     const handleSaveDrawing = () => {
         if (canvasRef.current) {
             const updatedDrawings = [
-                ...drawings.slice(0, currentIndex), // Keep drawings before the current index
-                canvasRef.current.getSaveData(),   // Save the edited drawing
-                ...drawings.slice(currentIndex + 1) // Keep drawings after the current index
+                ...drawings.slice(0, currentIndex),
+                canvasRef.current.getSaveData(),
+                ...drawings.slice(currentIndex + 1)
             ];
             setDrawings(updatedDrawings);
             console.log("Saved");
