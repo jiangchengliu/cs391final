@@ -27,43 +27,51 @@ export default function App(){
     const [strokeWidth, setStrokeWidth] = useState(15);
 
     const [drawings, setDrawings] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(-1);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
     const handleNextDrawing = () => {
-        if (currentIndex < drawings.length - 1) {
-            const nextIndex = currentIndex + 1;
+        const nextIndex = currentIndex + 1;
+        if (nextIndex < drawings.length) {
             loadDrawing(nextIndex);
-            console.log("next clicked");
+            setCurrentIndex(nextIndex);
+            console.log(currentIndex);
         } else {
             canvasRef.current.clear();
+            setCurrentIndex(nextIndex);
             console.log("next clicked (new drawing)");
+            console.log(currentIndex);
         }
     };
 
     const handlePrevDrawing = () => {
         const newIndex = currentIndex - 1;
-        loadDrawing(newIndex);
-    }
+        if (newIndex >= 0) {
+            loadDrawing(newIndex);
+            setCurrentIndex(newIndex);
+            console.log(currentIndex);
+        }
+
+    };
 
     const loadDrawing = (index) => {
-        if (index >= 0 && index < drawings.length) {
-            canvasRef.current.clear();
-            const drawing = drawings[index];
-            canvasRef.current.loadSaveData(drawing, true);
-            setCurrentIndex(index);
-        }
-    }
+        canvasRef.current.clear();
+        const drawing = drawings[index];
+        canvasRef.current.loadSaveData(drawing, true);
+    };
 
     const handleSaveDrawing = () => {
         if (canvasRef.current) {
-            setDrawings(prevDrawings => {
-                const updatedDrawings = [...prevDrawings.slice(0, currentIndex + 1), canvasRef.current.getSaveData()];
-                setCurrentIndex(updatedDrawings.length - 1);
-                return updatedDrawings;
-            });
+            const updatedDrawings = [
+                ...drawings.slice(0, currentIndex), // Keep drawings before the current index
+                canvasRef.current.getSaveData(),   // Save the edited drawing
+                ...drawings.slice(currentIndex + 1) // Keep drawings after the current index
+            ];
+            setDrawings(updatedDrawings);
+            console.log("Saved");
         }
-        console.log("Saved");
-    }
+    };
+
+
 
     const handlePenClick = () => {
         setErase(false);
